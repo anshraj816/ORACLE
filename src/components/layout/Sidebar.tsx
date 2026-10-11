@@ -39,10 +39,12 @@ export const Sidebar: React.FC = () => {
           className="flex items-center gap-3.5 group cursor-pointer text-left overflow-hidden"
         >
           {/* QUANTRIX Beacon Logo */}
-          <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 p-0.5 shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform shrink-0">
-            <div className="flex items-center justify-center w-full h-full bg-[#0b0c14] rounded-[10px]">
-              <Sparkles className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-            </div>
+          <div className="relative flex items-center justify-center w-11 h-11 rounded-xl overflow-hidden border border-cyan-400/50 shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform shrink-0">
+            <img
+              src="./assets/quantrix_symbol.jpg"
+              alt="QUANTRIX Symbol"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping opacity-75" />
             <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-cyan-400 rounded-full" />
           </div>

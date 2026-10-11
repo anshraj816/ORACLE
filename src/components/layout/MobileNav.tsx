@@ -31,10 +31,12 @@ export const MobileNav: React.FC = () => {
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-white/[0.08]">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-0.5">
-                    <div className="w-full h-full bg-[#0b0c14] rounded-[10px] flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-indigo-400" />
-                    </div>
+                  <div className="w-9 h-9 rounded-xl overflow-hidden border border-cyan-400/50 shadow-md shrink-0">
+                    <img
+                      src="./assets/quantrix_symbol.jpg"
+                      alt="QUANTRIX Symbol"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <span className="font-extrabold text-base tracking-widest text-white">QUANTRIX</span>
                 </div>

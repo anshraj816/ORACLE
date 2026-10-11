@@ -86,11 +86,13 @@ export const OverviewDashboard: React.FC = () => {
         <div className="relative z-10 max-w-3xl">
           {/* Top Pill: QUANTRIX Brand & Symbol (Remains Still / Constant) */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 shadow-lg shadow-indigo-950/50">
-              <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-600 to-cyan-400 p-0.5 shadow-sm shadow-indigo-500/50">
-                <div className="w-full h-full bg-[#0b0c14] rounded-[6px] flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-                </div>
+            <div className="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 shadow-lg shadow-indigo-950/50">
+              <div className="relative flex items-center justify-center w-7 h-7 rounded-lg overflow-hidden border border-cyan-400/50 shadow-md shadow-cyan-500/30 shrink-0">
+                <img
+                  src="./assets/quantrix_symbol.jpg"
+                  alt="QUANTRIX Symbol"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-sm font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300 font-mono">
                 QUANTRIX
