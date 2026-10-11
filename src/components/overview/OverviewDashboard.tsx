@@ -28,30 +28,40 @@ export const OverviewDashboard: React.FC = () => {
   const moneyMetrics = calculateMoneyMetrics(moneyInputs);
   const timeMetrics = calculateTimeMetrics(timeInputs);
 
-  // LED blinking animation states
+  // LED blinking animation states:
   // Words: ["Turn", "Complexity", "to", "Reality"]
-  // 0: All hidden/dimmed
-  // 1: "Turn" appears & blinks
-  // 2: "Complexity" appears & blinks
-  // 3: "to" appears & blinks
-  // 4: "Reality" appears & blinks
-  // 5: All lit up and still for 3 seconds
+  // 0: All hidden/dimmed (clean pause before restart)
+  // 1: "Turn" appears with single clean LED pulse
+  // 2: "Complexity" appears with single clean LED pulse
+  // 3: "to" appears with single clean LED pulse
+  // 4: "Reality" appears with single clean LED pulse & full line illuminates
+  // 4 remains still for 3 seconds, then restarts
   const [animStep, setAnimStep] = React.useState<number>(0);
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (animStep >= 0 && animStep < 4) {
-      // Step through words every 650ms
+    if (animStep === 0) {
+      // Short reset pause before Turn starts
       timer = setTimeout(() => {
-        setAnimStep((prev) => prev + 1);
-      }, 650);
+        setAnimStep(1);
+      }, 400);
+    } else if (animStep === 1) {
+      // Turn -> Complexity
+      timer = setTimeout(() => {
+        setAnimStep(2);
+      }, 600);
+    } else if (animStep === 2) {
+      // Complexity -> to
+      timer = setTimeout(() => {
+        setAnimStep(3);
+      }, 600);
+    } else if (animStep === 3) {
+      // to -> Reality (each blinks exactly once as it enters)
+      timer = setTimeout(() => {
+        setAnimStep(4);
+      }, 600);
     } else if (animStep === 4) {
-      // Transition to fully lit hold state
-      timer = setTimeout(() => {
-        setAnimStep(5);
-      }, 700);
-    } else if (animStep === 5) {
-      // Hold still for 3 seconds, then restart cycle
+      // Full headline illuminated: hold still for exactly 3 seconds
       timer = setTimeout(() => {
         setAnimStep(0);
       }, 3000);
@@ -98,18 +108,17 @@ export const OverviewDashboard: React.FC = () => {
           <div className="min-h-[4.5rem] sm:min-h-[5.5rem] flex items-center">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.2] flex flex-wrap items-center gap-x-3.5 gap-y-1">
               {words.map((w) => {
-                const isCurrentBlinking = animStep === w.step;
-                const isPastOrStill = animStep > w.step;
-                const isVisible = animStep >= w.step;
+                const isEnteringNow = animStep === w.step;
+                const isAlreadyLit = animStep > w.step;
 
                 return (
                   <span
-                    key={w.text}
+                    key={`${w.text}-${animStep === 0 ? 'reset' : 'active'}`}
                     className={`inline-block transition-all duration-300 select-none ${
-                      isCurrentBlinking
-                        ? `${w.glowClass} animate-pulse scale-105 opacity-100`
-                        : isPastOrStill
-                        ? `${w.glowClass} opacity-100 scale-100`
+                      isEnteringNow
+                        ? `${w.glowClass} led-single-flash`
+                        : isAlreadyLit
+                        ? `${w.glowClass} opacity-100`
                         : 'opacity-10 text-slate-700 blur-[1px]'
                     }`}
                   >

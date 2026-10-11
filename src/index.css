@@ -73,3 +73,28 @@
   box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
 }
 
+@keyframes ledSingleFlash {
+  0% {
+    opacity: 0.15;
+    transform: scale(0.96);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: brightness(1.5);
+  }
+  60% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.led-single-flash {
+  animation: ledSingleFlash 0.5s ease-out forwards;
+}
+
+
