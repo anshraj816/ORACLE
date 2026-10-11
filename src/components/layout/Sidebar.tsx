@@ -38,7 +38,7 @@ export const Sidebar: React.FC = () => {
           onClick={() => setActiveTab('overview')}
           className="flex items-center gap-3.5 group cursor-pointer text-left overflow-hidden"
         >
-          {/* ORACLE Beacon Logo */}
+          {/* QUANTRIX Beacon Logo */}
           <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700 p-0.5 shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform shrink-0">
             <div className="flex items-center justify-center w-full h-full bg-[#0b0c14] rounded-[10px]">
               <Sparkles className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
@@ -50,15 +50,15 @@ export const Sidebar: React.FC = () => {
           {!sidebarCollapsed && (
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-widest bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">
-                  ORACLE
+                <span className="font-extrabold text-base tracking-widest bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">
+                  QUANTRIX
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                   v2.0
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400 truncate tracking-tight">
-                Understand. Optimize.
+              <span className="text-[10px] text-slate-400 truncate tracking-tight">
+                Turn Complexity Into Clarity
               </span>
             </div>
           )}

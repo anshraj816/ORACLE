@@ -287,10 +287,10 @@ def chat():
     csv_ctx = context.get('csv', {})
 
     # System instruction giving the AI a real human persona with deep data awareness
-    system_prompt = f"""You are ORACLE AI, a warm, articulate, highly intelligent personal advisor and decision companion.
+    system_prompt = f"""You are QUANTRIX AI, a warm, articulate, highly intelligent personal advisor and decision companion.
 You talk like a real, supportive human pair-programmer and mentor—conversational, clear, friendly, and natural. There are NO limits to what you can discuss.
 
-You have live, real-time awareness of the user's data on the ORACLE platform:
+You have live, real-time awareness of the user's data on the QUANTRIX platform:
 - Current Module: {active_tab.upper()}
 - Money Simulator Data: Monthly Income={money_ctx.get('currency', '₹')}{money_ctx.get('monthlyIncome', 0):,}, Rent={money_ctx.get('currency', '₹')}{money_ctx.get('rent', 0):,}, Food={money_ctx.get('currency', '₹')}{money_ctx.get('food', 0):,}, Transport={money_ctx.get('currency', '₹')}{money_ctx.get('transport', 0):,}, Entertainment={money_ctx.get('currency', '₹')}{money_ctx.get('entertainment', 0):,}, Other Expenses={money_ctx.get('currency', '₹')}{money_ctx.get('other', 0):,}, Monthly Surplus={money_ctx.get('currency', '₹')}{money_ctx.get('surplus', 0):,}, Savings Target={money_ctx.get('currency', '₹')}{money_ctx.get('savingsTarget', 0):,}
 - Time Simulator Data: Sleep Duration={time_ctx.get('sleep', 7.5)} hours, Daily Study={time_ctx.get('study', 3.0)} hours, College/Work={time_ctx.get('collegeWork', 6.0)} hours, Commute={time_ctx.get('travel', 1.5)} hours, Leisure/Entertainment={time_ctx.get('entertainment', 2.0)} hours, Meals & Care={time_ctx.get('mealsPersonal', 2.0)} hours, Other Tasks={time_ctx.get('other', 1.0)} hours, Study Target={time_ctx.get('studyTargetDaily', 3.5)} hours, Active Days={time_ctx.get('selectedDaysPerWeek', 5)} days/week, Semester Length={time_ctx.get('semesterWeeks', 16)} weeks, Total Daily Allocated={time_ctx.get('totalAllocated', 23.0)}/24h, Remaining Buffer={time_ctx.get('unallocated', 1.0)}h
@@ -334,7 +334,7 @@ Conversational Guidelines:
                 if content:
                     return jsonify({
                         "reply": content,
-                        "engine": f"ORACLE AI (Powered by {OLLAMA_MODEL})",
+                        "engine": f"QUANTRIX AI (Powered by {OLLAMA_MODEL})",
                         "status": "success"
                     })
         except Exception as e:
@@ -344,7 +344,7 @@ Conversational Guidelines:
     reply = generate_natural_fallback_response(user_query, active_tab, money_ctx, time_ctx, csv_ctx)
     return jsonify({
         "reply": reply,
-        "engine": "ORACLE Intelligence Assistant",
+        "engine": "QUANTRIX Intelligence Assistant",
         "status": "success"
     })
 
@@ -360,7 +360,7 @@ def generate_natural_fallback_response(query, tab, money_ctx, time_ctx, csv_ctx)
         return "I'm doing great, thank you for asking! Ready to help you make sense of your data and optimize your daily schedule. How is your day going?"
 
     if "who are you" in q or "what can you do" in q or "help me" in q:
-        return "I'm your **ORACLE AI Co-Pilot**! Think of me as your personal data and productivity partner. You can ask me anything about:\n- **Your Time Routine:** e.g. finding more study hours without touching your sleep.\n- **Your CSV Dataset:** checking for empty rows, duplicates, outliers, and key patterns.\n- **Your Financial Plan:** managing surplus, cutting expenses, or hitting savings goals.\n\nAsk me anything in plain language!"
+        return "I'm your **QUANTRIX AI Co-Pilot**! Think of me as your personal data and productivity partner. You can ask me anything about:\n- **Your Time Routine:** e.g. finding more study hours without touching your sleep.\n- **Your CSV Dataset:** checking for empty rows, duplicates, outliers, and key patterns.\n- **Your Financial Plan:** managing surplus, cutting expenses, or hitting savings goals.\n\nAsk me anything in plain language!"
 
     # Study increase without touching sleep
     if ("study" in q and ("sleep" in q or "increase" in q or "more" in q or "time" in q)) or "routine" in q:
@@ -437,5 +437,5 @@ Here is an actionable way to increase your study time while keeping your **{slee
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    print(f">> ORACLE Python Analytics Engine listening on http://localhost:{port}")
+    print(f">> QUANTRIX Python Analytics Engine listening on http://localhost:{port}")
     app.run(host='0.0.0.0', port=port, debug=False)

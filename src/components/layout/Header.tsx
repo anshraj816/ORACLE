@@ -111,7 +111,7 @@ export const Header: React.FC = () => {
             <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
               <div className="flex items-center gap-2.5">
                 <Sparkles className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-base font-bold text-white">ORACLE Intelligence Architecture</h3>
+                <h3 className="text-base font-bold text-white">QUANTRIX Intelligence Architecture</h3>
               </div>
               <button
                 onClick={() => setShowHelpModal(false)}

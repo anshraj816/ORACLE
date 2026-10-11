@@ -36,7 +36,7 @@ export const MobileNav: React.FC = () => {
                       <Sparkles className="w-4 h-4 text-indigo-400" />
                     </div>
                   </div>
-                  <span className="font-extrabold text-base tracking-widest text-white">ORACLE</span>
+                  <span className="font-extrabold text-base tracking-widest text-white">QUANTRIX</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
@@ -74,7 +74,7 @@ export const MobileNav: React.FC = () => {
             </div>
 
             <div className="text-[11px] text-slate-400 text-center pt-6 border-t border-white/[0.08]">
-              ORACLE Intelligence v2.0
+              QUANTRIX Intelligence v2.0
             </div>
           </div>
           <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />

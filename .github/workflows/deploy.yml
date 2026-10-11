@@ -1,4 +1,4 @@
-name: Deploy ORACLE to GitHub Pages
+name: Deploy QUANTRIX to GitHub Pages
 
 on:
   push:

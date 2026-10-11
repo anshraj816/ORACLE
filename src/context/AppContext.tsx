@@ -28,9 +28,14 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY_MONEY = 'oracle_money_inputs_v1';
-const LOCAL_STORAGE_KEY_TIME = 'oracle_time_inputs_v1';
-const LOCAL_STORAGE_KEY_CURRENCY = 'oracle_currency_v1';
+const LOCAL_STORAGE_KEY_MONEY = 'quantrix_money_inputs_v1';
+const LOCAL_STORAGE_KEY_TIME = 'quantrix_time_inputs_v1';
+const LOCAL_STORAGE_KEY_CURRENCY = 'quantrix_currency_v1';
+
+// Legacy fallbacks for seamless upgrade
+const LEGACY_STORAGE_KEY_MONEY = 'oracle_money_inputs_v1';
+const LEGACY_STORAGE_KEY_TIME = 'oracle_time_inputs_v1';
+const LEGACY_STORAGE_KEY_CURRENCY = 'oracle_currency_v1';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
@@ -40,7 +45,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Currency
   const [currency, setCurrencyState] = useState<CurrencyCode>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_CURRENCY);
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY_CURRENCY) || localStorage.getItem(LEGACY_STORAGE_KEY_CURRENCY);
     return (saved as CurrencyCode) || 'INR';
   });
 
@@ -53,7 +58,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Money Inputs
   const [moneyInputs, setMoneyInputs] = useState<MoneyInputs>(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_MONEY);
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_MONEY) || localStorage.getItem(LEGACY_STORAGE_KEY_MONEY);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       // Ignore fallback
@@ -70,7 +75,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Time Inputs
   const [timeInputs, setTimeInputs] = useState<TimeInputs>(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_TIME);
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY_TIME) || localStorage.getItem(LEGACY_STORAGE_KEY_TIME);
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return TIME_PRESETS.balanced.inputs;

@@ -18,7 +18,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { calculateMoneyMetrics } from '../../utils/moneyCalculations';
 import { calculateTimeMetrics } from '../../utils/timeCalculations';
-import { askOracleAi, checkPythonBackendHealth, ChatMessage, PythonHealthStatus } from '../../utils/pythonApi';
+import { askQuantrixAi, checkPythonBackendHealth, ChatMessage, PythonHealthStatus } from '../../utils/pythonApi';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 
@@ -29,7 +29,7 @@ export const AiChatWidget: React.FC = () => {
     {
       id: 'welcome',
       sender: 'ai',
-      text: "Hello! I am your **ORACLE AI Co-Pilot**. I can analyze your financial numbers, optimize your study routine without touching your sleep, and answer questions about your CSV data (like empty rows, duplicates, or stats). How can I assist you today?",
+      text: "Hello! I am your **QUANTRIX AI Co-Pilot**. I can analyze your financial numbers, optimize your study routine without touching your sleep, and answer questions about your CSV data (like empty rows, duplicates, or stats). How can I assist you today?",
       engine: 'Free Local Engine',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
@@ -126,7 +126,7 @@ export const AiChatWidget: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { reply, engine } = await askOracleAi(text, activeTab, contextData, messages);
+      const { reply, engine } = await askQuantrixAi(text, activeTab, contextData, messages);
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
@@ -197,7 +197,7 @@ export const AiChatWidget: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white">ORACLE AI Co-Pilot</h3>
+                  <h3 className="text-sm font-bold text-white">QUANTRIX AI Co-Pilot</h3>
                   <Badge variant="emerald" size="sm">FREE</Badge>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
@@ -292,7 +292,7 @@ export const AiChatWidget: React.FC = () => {
             {isLoading && (
               <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
                 <div className="w-5 h-5 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin" />
-                <span>ORACLE AI is analyzing your data and constraints...</span>
+                <span>QUANTRIX AI is analyzing your data and constraints...</span>
               </div>
             )}
             <div ref={messagesEndRef} />

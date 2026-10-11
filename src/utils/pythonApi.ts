@@ -42,7 +42,7 @@ export interface ChatMessage {
   timestamp: string;
 }
 
-export async function askOracleAi(
+export async function askQuantrixAi(
   userQuery: string,
   activeTab: string,
   contextData: any,
@@ -74,7 +74,7 @@ export async function askOracleAi(
 
   return {
     reply: generateClientSideAiReply(userQuery, activeTab, contextData),
-    engine: 'ORACLE Built-in Free Intelligence',
+    engine: 'QUANTRIX Built-in Free Intelligence',
   };
 }
 
@@ -94,7 +94,7 @@ function generateClientSideAiReply(query: string, tab: string, ctx: any): string
   }
 
   if (q.includes('who are you') || q.includes('what can you do')) {
-    return "I'm your **ORACLE AI Co-Pilot**! You can chat with me about anything on this platform without limits: ask for schedule advice (like boosting study time without sacrificing sleep), query your CSV files (for empty rows, duplicates, correlations), or plan your monthly budget. What would you like to explore?";
+    return "I'm your **QUANTRIX AI Co-Pilot**! You can chat with me about anything on this platform without limits: ask for schedule advice (like boosting study time without sacrificing sleep), query your CSV files (for empty rows, duplicates, correlations), or plan your monthly budget. What would you like to explore?";
   }
 
   if ((q.includes('study') && (q.includes('sleep') || q.includes('increase') || q.includes('more'))) || q.includes('routine')) {

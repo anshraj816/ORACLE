@@ -62,7 +62,7 @@ export const DataQualityInspector: React.FC<DataQualityInspectorProps> = ({
   // Export Data Quality Report as Markdown
   const handleExportReport = () => {
     const md = `
-# ORACLE Data Quality Audit Report
+# QUANTRIX Data Quality Audit Report
 - Dataset: ${fileName}
 - Generated At: ${new Date().toISOString()}
 - Total Issues Detected: ${issues.length}

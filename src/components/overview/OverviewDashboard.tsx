@@ -36,20 +36,19 @@ export const OverviewDashboard: React.FC = () => {
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Deterministic Personal Intelligence Platform</span>
+            <span>FINANCE · TIME · DATA</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-            Understand your data.{' '}
+            Turn Complexity{' '}
             <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
-              Optimize your life.
+              Into Clarity.
             </span>
           </h1>
 
           <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-            ORACLE replaces fragmented spreadsheets and black-box tools with rigorous, transparent
-            analytics. Model financial runways, engineer conflict-free daily schedules, and inspect
-            large datasets locally without subscription fees or paid APIs.
+            A personal intelligence platform for understanding your finances, optimizing your time,
+            and discovering insights hidden in your data. Make better decisions with the power of computation.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -299,7 +298,7 @@ export const OverviewDashboard: React.FC = () => {
               </Badge>
             </div>
             <p className="text-xs text-slate-400">
-              Sample calculations illustrating ORACLE's deterministic logic engines
+              Sample calculations illustrating QUANTRIX's deterministic logic engines
             </p>
           </div>
         </div>

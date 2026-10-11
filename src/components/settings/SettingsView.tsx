@@ -94,7 +94,7 @@ export const SettingsView: React.FC = () => {
               <span>Air-Gapped Client Execution</span>
             </div>
             <p className="text-slate-400">
-              ORACLE processes calculations, What-If forecasts, and CSV files in your browser's
+              QUANTRIX processes calculations, What-If forecasts, and CSV files in your browser's
               memory sandbox. No network payloads containing your financial numbers or dataset
               records are ever dispatched to external servers or commercial AI providers.
             </p>

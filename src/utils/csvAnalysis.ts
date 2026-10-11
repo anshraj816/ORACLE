@@ -797,7 +797,7 @@ export function cleanDataset(
   const totalFilteredRows = emptyRowsDropped + duplicatesRemoved + missingRowsDropped + (options.handleOutliers === 'drop' ? outliersCapped : 0);
 
   const summaryReport = `
-# ORACLE Data Sanitization Audit Report
+# QUANTRIX Data Sanitization Audit Report
 - Original File: ${originalResult.fileName}
 - Original Records: ${initialCount}
 - Cleaned Final Records: ${workingRows.length}
@@ -812,7 +812,7 @@ export function cleanDataset(
 
   // Generate complete reproducible Jupyter Notebook Python script
   const jupyterNotebookScript = `# =====================================================================
-# ORACLE AUTOMATED JUPYTER NOTEBOOK DATA CLEANING PIPELINE
+# QUANTRIX AUTOMATED JUPYTER NOTEBOOK DATA CLEANING PIPELINE
 # File: ${originalResult.fileName}
 # Generated on: ${new Date().toLocaleString()}
 # =====================================================================

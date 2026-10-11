@@ -65,7 +65,7 @@ export const TimetableGeneratorView: React.FC<TimetableGeneratorViewProps> = ({ 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'oracle_daily_timetable.csv');
+    link.setAttribute('download', 'quantrix_daily_timetable.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

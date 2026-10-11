@@ -1,10 +1,15 @@
-# ORACLE
+# QUANTRIX
 
-> **"Understand your data. Optimize your life."**
+> **"Turn Complexity Into Clarity."**
+> 
+> *A personal intelligence platform for understanding your finances, optimizing your time, and discovering insights hidden in your data.*
+> 
+> **FINANCE · TIME · DATA**  
+> *Make better decisions with the power of computation.*
 
-ORACLE is a premium, client-side personal intelligence and data analytics platform built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Recharts**.
+QUANTRIX is a premium, local-first personal intelligence and data analytics platform built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Recharts**.
 
-It combines three interconnected analytical engines into a unified, dark-themed SaaS interface:
+It combines three interconnected analytical engines into a unified SaaS interface:
 1. **Money Simulator**: Deterministic cashflow modeling, 12-month savings projections, What-If sensitivity adjustments, and rule-based arithmetic financial recommendations.
 2. **Time Simulator**: 24-hour routine balancing, strict overflow validation, What-If time reallocations, and an algorithmic collision-free timetable generator.
 3. **CSV Data Intelligence**: Local in-browser CSV parsing via PapaParse, dataset profiling, granular data-quality anomaly auditing, interactive visual charts (histograms, scatter plots, correlation heatmaps), and a non-destructive Data Cleaning Studio with CSV export.
@@ -79,4 +84,4 @@ Make sure **Node.js** (v18+ or v24+) and **npm** are available.
 
 ## 🔒 100% Client-Side Privacy Guarantee
 
-ORACLE executes all calculations and CSV parsing directly inside the client browser. No financial data or uploaded records are ever transmitted to third-party cloud services or external AI APIs.
+QUANTRIX executes all calculations and CSV parsing directly inside the client browser. No financial data or uploaded records are ever transmitted to third-party cloud services or external AI APIs.
