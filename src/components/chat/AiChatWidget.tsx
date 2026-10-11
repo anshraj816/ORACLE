@@ -23,7 +23,7 @@ import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 
 export const AiChatWidget: React.FC = () => {
-  const { activeTab, moneyInputs, timeInputs, currency } = useApp();
+  const { activeTab, moneyInputs, timeInputs, currency, parsedCsv } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -86,15 +86,28 @@ export const AiChatWidget: React.FC = () => {
       totalAllocated: timeMetrics.totalAllocated,
       unallocated: timeMetrics.unallocated,
     },
-    csv: {
-      fileName: 'customer_churn_analytics.csv',
-      totalRows: 29,
-      totalCols: 8,
-      missingCells: 2,
-      missingPercentage: 0.9,
-      duplicateRows: 1,
-      columns: ['CustomerID', 'AccountTier', 'MonthlySpend', 'UsageHoursDaily', 'SupportTickets', 'ChurnScore', 'SignupDate', 'Country'],
-    },
+    csv: parsedCsv
+      ? {
+          fileName: parsedCsv.fileName,
+          totalRows: parsedCsv.overview.totalDataRows,
+          totalCols: parsedCsv.overview.totalColumns,
+          totalCells: parsedCsv.overview.totalCells,
+          missingCells: parsedCsv.overview.missingCells,
+          missingPercentage: parsedCsv.overview.missingPercentage,
+          duplicateRows: parsedCsv.overview.duplicateRowsCount,
+          emptyRows: parsedCsv.overview.emptyRowsCount,
+          columns: parsedCsv.headers,
+          columnTypes: parsedCsv.columnProfiles.map((cp) => ({
+            name: cp.name,
+            type: cp.inferredType,
+            missing: cp.missingCount,
+            unique: cp.uniqueCount,
+            mean: cp.stats?.mean,
+            min: cp.stats?.min,
+            max: cp.stats?.max,
+          })),
+        }
+      : null,
   };
 
   const handleSend = async (textToSend?: string) => {
@@ -215,12 +228,14 @@ export const AiChatWidget: React.FC = () => {
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
               Active Scope: <strong className="text-white capitalize">{activeTab}</strong>
             </span>
-            <span className="text-[10px] text-indigo-300 font-mono">
+            <span className="text-[10px] text-indigo-300 font-mono truncate max-w-[200px]">
               {activeTab === 'time'
                 ? `Sleep: ${timeInputs.sleep}h | Study: ${timeInputs.study}h`
                 : activeTab === 'money'
                 ? `Surplus: ${currency} ${moneyMetrics.monthlySurplus.toLocaleString()}`
-                : `CSV: 29 records | 2 nulls`}
+                : parsedCsv
+                ? `${parsedCsv.fileName} (${parsedCsv.overview.totalDataRows}r, ${parsedCsv.overview.missingCells} null)`
+                : 'No CSV loaded'}
             </span>
           </div>
 

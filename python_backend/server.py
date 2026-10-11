@@ -398,25 +398,28 @@ Here is an actionable way to increase your study time while keeping your **{slee
     if "duplicate" in q or "dublicate" in q:
         dups = csv_ctx.get('duplicateRows', 0)
         total = csv_ctx.get('totalRows', 0)
+        fname = csv_ctx.get('fileName', 'uploaded file')
         if dups > 0:
-            return f"Yes, there is duplicate data! Your active dataset contains **{dups} duplicate row** (out of **{total} total rows**).\n\nDuplicate records can artificially bias averages and counts. If you want to remove them, just head over to the **Cleaning Studio** tab in CSV Intelligence and click **'Generate Sanitized Copy'**!"
+            return f"Yes, there is duplicate data! In your uploaded file **'{fname}'**, there are **{dups} duplicate row{'s' if dups > 1 else ''}** (out of **{total} total records**).\n\nDuplicate entries can bias averages and counts. You can remove them with one click in the **Cleaning Studio** tab by clicking **'Generate Sanitized Copy'**!"
         else:
-            return f"Good news! There are **0 duplicate records** in your active dataset across all **{total} rows**. Every row is unique."
+            return f"Good news! In your uploaded file **'{fname}'**, there are **0 duplicate records** across all **{total} rows**. Every row is completely unique."
 
     # CSV Questions: Empty rows & missing cells
     if "empty" in q or "missing" in q or "null" in q or "blank" in q:
         missing = csv_ctx.get('missingCells', 0)
         missing_pct = csv_ctx.get('missingPercentage', 0)
         total = csv_ctx.get('totalRows', 0)
-        return f"Here is the breakdown of empty and missing data:\n\n- **Empty Rows:** 0 (all {total} rows contain at least some data; there are no 100% empty rows).\n- **Missing / Blank Cells:** There are **{missing} missing cells** ({missing_pct}% of the total data matrix).\n\nYou can inspect the exact rows and column names in the **Data Quality Inspector** tab, or fill them in using the **Cleaning Studio**."
+        empty_rows = csv_ctx.get('emptyRows', 0)
+        fname = csv_ctx.get('fileName', 'uploaded file')
+        return f"Here is the data quality breakdown for **'{fname}'**:\n\n- **Entirely Empty Rows:** **{empty_rows}** {'(rows with no data)' if empty_rows > 0 else f'(all {total} rows contain valid entries; no 100% empty rows)'}.\n- **Missing / Blank Cells:** **{missing} cells** ({missing_pct}% of the total data matrix).\n\nYou can inspect the exact missing values in the **Data Quality Inspector** tab, or impute/drop them in the **Cleaning Studio**."
 
     # CSV Questions: Column list & rows count
-    if "how many row" in q or "how many column" in q or "row count" in q or "size" in q:
+    if "how many row" in q or "how many column" in q or "row count" in q or "column count" in q or "size" in q or "shape" in q:
         rows = csv_ctx.get('totalRows', 'N/A')
         cols = csv_ctx.get('totalCols', 'N/A')
-        fname = csv_ctx.get('fileName', 'Active Dataset')
+        fname = csv_ctx.get('fileName', 'uploaded file')
         cols_str = ', '.join(csv_ctx.get('columns', []))
-        return f"Your active dataset **'{fname}'** has:\n- **{rows} data rows** (excluding the header line on line 1)\n- **{cols} columns**: {cols_str}"
+        return f"Your uploaded dataset **'{fname}'** has:\n- **{rows} data rows** (excluding line 1 header)\n- **{cols} columns**: {cols_str}"
 
     # Money / Savings Questions
     if "save" in q or "money" in q or "surplus" in q or "rent" in q or "food" in q or "expense" in q:

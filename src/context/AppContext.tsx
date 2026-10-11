@@ -2,7 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { CurrencyCode, MoneyInputs } from '../types/money';
 import { NavTab, ToastMessage } from '../types/navigation';
 import { TimeInputs } from '../types/time';
-import { MONEY_PRESETS, TIME_PRESETS } from '../utils/sampleData';
+import { MONEY_PRESETS, SAMPLE_CSV_CHURN, TIME_PRESETS } from '../utils/sampleData';
+import { ParsedCsvResult, parseCsvContent } from '../utils/csvAnalysis';
 
 interface AppContextType {
   activeTab: NavTab;
@@ -20,6 +21,8 @@ interface AppContextType {
   setMoneyInputs: React.Dispatch<React.SetStateAction<MoneyInputs>>;
   timeInputs: TimeInputs;
   setTimeInputs: React.Dispatch<React.SetStateAction<TimeInputs>>;
+  parsedCsv: ParsedCsvResult | null;
+  setParsedCsv: (result: ParsedCsvResult | null) => void;
   resetAllDefaults: () => void;
 }
 
@@ -79,6 +82,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {}
   }, [timeInputs]);
 
+  // CSV Ingestion State (accessible across entire platform and AI Chatbot)
+  const [parsedCsv, setParsedCsv] = useState<ParsedCsvResult | null>(() => {
+    try {
+      return parseCsvContent(SAMPLE_CSV_CHURN, 'customer_churn_analytics.csv');
+    } catch (e) {
+      return null;
+    }
+  });
+
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
     const id = Math.random().toString(36).substring(2, 9);
     const newToast: ToastMessage = { ...toast, id };
@@ -123,6 +135,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setMoneyInputs,
         timeInputs,
         setTimeInputs,
+        parsedCsv,
+        setParsedCsv,
         resetAllDefaults,
       }}
     >

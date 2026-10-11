@@ -127,26 +127,38 @@ Here is an actionable strategy to **increase study time while keeping your ${sle
   }
 
   if (q.includes('duplicate') || q.includes('dublicate')) {
-    const dups = csv.duplicateRows || 0;
-    const total = csv.totalRows || 0;
+    if (!csv || !csv.fileName) {
+      return "No CSV file is currently loaded. Please upload your CSV file in the **CSV Intelligence** tab, and I'll immediately analyze all duplicates for you!";
+    }
+    const dups = csv.duplicateRows ?? 0;
+    const total = csv.totalRows ?? 0;
+    const fname = csv.fileName;
     return dups > 0
-      ? `Yes! Your active dataset contains **${dups} duplicate row** out of **${total} total records**.\n\n- **Impact:** Duplicate entries artificially weight averages and variance.\n- **Action:** Open the **Cleaning Studio** tab and click **'Generate Sanitized Copy'** to remove them with one click!`
-      : `Good news! Your active dataset contains **0 duplicate rows** across all **${total} records**. Every row is completely unique!`;
+      ? `Yes! In your uploaded file **'${fname}'**, there are **${dups} duplicate row${dups > 1 ? 's' : ''}** out of **${total} total records**.\n\n- **Impact:** Duplicate entries artificially weight sums, averages, and statistics.\n- **Action:** Go to the **Cleaning Studio** tab and click **'Generate Sanitized Copy'** to remove them automatically!`
+      : `Good news! In your uploaded file **'${fname}'**, there are **0 duplicate rows** across all **${total} records**. Every single row is unique!`;
   }
 
   if (q.includes('empty') || q.includes('missing') || q.includes('null') || q.includes('blank')) {
-    const missing = csv.missingCells || 0;
-    const pct = csv.missingPercentage || 0;
-    const total = csv.totalRows || 0;
-    return `Here is what I found regarding empty and missing data:\n\n- **Empty Rows:** 0 (all ${total} rows contain at least some data; there are no entirely blank rows).\n- **Missing / Blank Cells:** There are **${missing} missing cells** (${pct}% of the total data matrix).\n\nYou can inspect the exact row numbers and column names in the **Data Quality Inspector** tab, or fill/drop them in the **Cleaning Studio**!`;
+    if (!csv || !csv.fileName) {
+      return "No CSV file is currently loaded. Please upload your CSV dataset in the **CSV Intelligence** tab, and I will check all empty rows and missing cells for you!";
+    }
+    const missing = csv.missingCells ?? 0;
+    const pct = csv.missingPercentage ?? 0;
+    const total = csv.totalRows ?? 0;
+    const emptyRows = csv.emptyRows ?? 0;
+    const fname = csv.fileName;
+    return `Here is the data quality breakdown for **'${fname}'**:\n\n- **Entirely Empty Rows:** **${emptyRows}** ${emptyRows > 0 ? `(row${emptyRows > 1 ? 's' : ''} with no content at all)` : `(all ${total} rows have valid entries; no 100% empty rows)`}.\n- **Missing / Blank Cells:** **${missing} cells** (${pct}% of the total data matrix).\n\nYou can inspect the exact missing values in the **Data Quality Inspector** tab, or clean/impute them in the **Cleaning Studio**!`;
   }
 
-  if (q.includes('how many row') || q.includes('how many column') || q.includes('row count') || q.includes('size')) {
-    const rows = csv.totalRows || 'N/A';
-    const cols = csv.totalCols || 'N/A';
-    const fname = csv.fileName || 'Active Dataset';
+  if (q.includes('how many row') || q.includes('how many column') || q.includes('row count') || q.includes('column count') || q.includes('size') || q.includes('shape') || q.includes('header')) {
+    if (!csv || !csv.fileName) {
+      return "No CSV file is currently loaded. Once you upload your dataset in the **CSV Intelligence** tab, I can report its exact row and column breakdown!";
+    }
+    const rows = csv.totalRows ?? 'N/A';
+    const cols = csv.totalCols ?? 'N/A';
+    const fname = csv.fileName;
     const colsStr = (csv.columns || []).join(', ');
-    return `Your active dataset **'${fname}'** has:\n- **${rows} data rows** (excluding header line 1)\n- **${cols} columns**: ${colsStr}`;
+    return `Your uploaded dataset **'${fname}'** contains:\n- **${rows} data rows** (excluding line 1 header)\n- **${cols} columns**: \`${colsStr}\``;
   }
 
   if (q.includes('save') || q.includes('money') || q.includes('food') || q.includes('rent') || q.includes('expense')) {

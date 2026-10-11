@@ -26,22 +26,13 @@ import { VisualAnalyticsPanel } from './VisualAnalyticsPanel';
 type CsvTab = 'overview' | 'preview' | 'visuals' | 'correlations' | 'cleaning';
 
 export const CsvIntelligence: React.FC = () => {
-  const { addToast } = useApp();
+  const { addToast, parsedCsv, setParsedCsv } = useApp();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Default to Customer Churn sample on first load
-  const [parsedResult, setParsedResult] = useState<ParsedCsvResult | null>(() => {
-    try {
-      return parseCsvContent(SAMPLE_CSV_CHURN, 'customer_churn_analytics.csv');
-    } catch (e) {
-      return null;
-    }
-  });
 
   const [activeCsvTab, setActiveCsvTab] = useState<CsvTab>('overview');
 
   const handleParsed = (result: ParsedCsvResult) => {
-    setParsedResult(result);
+    setParsedCsv(result);
     addToast({
       type: 'success',
       title: 'Dataset Ingested Successfully',
@@ -56,10 +47,10 @@ export const CsvIntelligence: React.FC = () => {
         onParsed={handleParsed}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
-        currentResult={parsedResult}
+        currentResult={parsedCsv}
       />
 
-      {parsedResult && (
+      {parsedCsv && (
         <>
           {/* Sub Navigation Tabs */}
           <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0f111a] border border-white/[0.08] overflow-x-auto">
@@ -73,9 +64,9 @@ export const CsvIntelligence: React.FC = () => {
             >
               <Database className="w-3.5 h-3.5" />
               <span>Overview & Quality</span>
-              {parsedResult.issues.length > 0 && (
+              {parsedCsv.issues.length > 0 && (
                 <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-mono">
-                  {parsedResult.issues.length}
+                  {parsedCsv.issues.length}
                 </span>
               )}
             </button>
@@ -133,14 +124,14 @@ export const CsvIntelligence: React.FC = () => {
           {activeCsvTab === 'overview' && (
             <div className="space-y-8 animate-in fade-in">
               <DatasetOverviewCards
-                overview={parsedResult.overview}
-                columnProfiles={parsedResult.columnProfiles}
+                overview={parsedCsv.overview}
+                columnProfiles={parsedCsv.columnProfiles}
               />
               <DataQualityInspector
-                issues={parsedResult.issues}
-                headers={parsedResult.headers}
-                rows={parsedResult.rows}
-                fileName={parsedResult.fileName}
+                issues={parsedCsv.issues}
+                headers={parsedCsv.headers}
+                rows={parsedCsv.rows}
+                fileName={parsedCsv.fileName}
               />
             </div>
           )}
@@ -148,9 +139,9 @@ export const CsvIntelligence: React.FC = () => {
           {activeCsvTab === 'preview' && (
             <div className="animate-in fade-in">
               <DataPreviewTable
-                headers={parsedResult.headers}
-                rows={parsedResult.rows}
-                columnProfiles={parsedResult.columnProfiles}
+                headers={parsedCsv.headers}
+                rows={parsedCsv.rows}
+                columnProfiles={parsedCsv.columnProfiles}
               />
             </div>
           )}
@@ -158,9 +149,9 @@ export const CsvIntelligence: React.FC = () => {
           {activeCsvTab === 'visuals' && (
             <div className="animate-in fade-in">
               <VisualAnalyticsPanel
-                headers={parsedResult.headers}
-                rows={parsedResult.rows}
-                columnProfiles={parsedResult.columnProfiles}
+                headers={parsedCsv.headers}
+                rows={parsedCsv.rows}
+                columnProfiles={parsedCsv.columnProfiles}
               />
             </div>
           )}
@@ -168,16 +159,16 @@ export const CsvIntelligence: React.FC = () => {
           {activeCsvTab === 'correlations' && (
             <div className="space-y-8 animate-in fade-in">
               <CorrelationHeatmap
-                correlationPairs={parsedResult.correlationPairs}
-                columnProfiles={parsedResult.columnProfiles}
+                correlationPairs={parsedCsv.correlationPairs}
+                columnProfiles={parsedCsv.columnProfiles}
               />
-              <CsvInsightsPanel insights={parsedResult.insights} />
+              <CsvInsightsPanel insights={parsedCsv.insights} />
             </div>
           )}
 
           {activeCsvTab === 'cleaning' && (
             <div className="animate-in fade-in">
-              <DataCleaningStudio parsedResult={parsedResult} />
+              <DataCleaningStudio parsedResult={parsedCsv} />
             </div>
           )}
         </>
