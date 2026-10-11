@@ -524,13 +524,27 @@ export function cleanDataset(
   rowsRemovedCount: number;
   cellsModifiedCount: number;
   summaryReport: string;
+  jupyterNotebookScript: string;
 } {
   let workingRows = originalResult.rows.map((row) => [...row]);
-  let initialCount = workingRows.length;
+  const initialCount = workingRows.length;
   let cellsModifiedCount = 0;
-
-  // 1. Remove duplicate rows
+  let emptyRowsDropped = 0;
   let duplicatesRemoved = 0;
+  let outliersCapped = 0;
+  let missingValuesFilled = 0;
+  let typeCastsCount = 0;
+
+  // 1. Remove 100% empty rows
+  if (options.removeEmptyRows !== false) {
+    const beforeCount = workingRows.length;
+    workingRows = workingRows.filter((row) =>
+      row.some((val) => val !== null && val !== undefined && String(val).trim() !== '')
+    );
+    emptyRowsDropped = beforeCount - workingRows.length;
+  }
+
+  // 2. Remove duplicate rows
   if (options.removeDuplicates) {
     const seen = new Set<string>();
     const filtered: (string | number | boolean | null)[][] = [];
@@ -548,7 +562,7 @@ export function cleanDataset(
     workingRows = filtered;
   }
 
-  // 2. Trim whitespace
+  // 3. Trim whitespace & invisible characters
   if (options.trimWhitespace) {
     workingRows.forEach((row) => {
       row.forEach((val, idx) => {
@@ -563,30 +577,182 @@ export function cleanDataset(
     });
   }
 
-  // 3. Standardize text casing
+  // 4. Strip special unwanted characters (accidental control chars, hidden tabs, non-breaking spaces)
+  if (options.cleanSpecialCharacters) {
+    workingRows.forEach((row) => {
+      row.forEach((val, idx) => {
+        if (typeof val === 'string') {
+          const cleaned = val.replace(/[\u0000-\u001F\u007F-\u009F\u00A0]/g, ' ').trim();
+          if (cleaned !== val) {
+            row[idx] = cleaned;
+            cellsModifiedCount++;
+          }
+        }
+      });
+    });
+  }
+
+  // 5. Smart Type Casting (Currency "$1,200" -> 1200, Boolean "True"/"no" -> true/false, Numeric strings)
+  if (options.autoTypeCasting) {
+    originalResult.columnProfiles.forEach((prof) => {
+      const colIdx = prof.index;
+      if (prof.inferredType === 'numeric') {
+        workingRows.forEach((row) => {
+          const val = row[colIdx];
+          if (typeof val === 'string' && val.trim() !== '') {
+            // Strip currency symbols and commas e.g. "$1,250.50"
+            const cleanedNumStr = val.replace(/[$€£₹,\s]/g, '');
+            const parsedNum = Number(cleanedNumStr);
+            if (!isNaN(parsedNum)) {
+              row[colIdx] = parsedNum;
+              typeCastsCount++;
+              cellsModifiedCount++;
+            }
+          }
+        });
+      } else if (prof.inferredType === 'boolean') {
+        workingRows.forEach((row) => {
+          const val = row[colIdx];
+          if (typeof val === 'string') {
+            const lower = val.toLowerCase().trim();
+            if (['true', 'yes', '1', 'y', 't'].includes(lower)) {
+              row[colIdx] = true;
+              typeCastsCount++;
+              cellsModifiedCount++;
+            } else if (['false', 'no', '0', 'n', 'f'].includes(lower)) {
+              row[colIdx] = false;
+              typeCastsCount++;
+              cellsModifiedCount++;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // 6. Dataset-Wide Missing Value Imputation (Categorical e.g. Director/Cast -> "Unknown" or Mode)
+  if (options.fillCategoricalMissing && options.fillCategoricalMissing !== 'preserve') {
+    originalResult.columnProfiles.forEach((prof) => {
+      if (prof.inferredType === 'categorical') {
+        const colIdx = prof.index;
+        const replacement =
+          options.fillCategoricalMissing === 'mode' && prof.frequencies && prof.frequencies.length > 0
+            ? prof.frequencies[0].value
+            : 'Unknown';
+
+        workingRows.forEach((row) => {
+          const val = row[colIdx];
+          if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '')) {
+            row[colIdx] = replacement;
+            missingValuesFilled++;
+            cellsModifiedCount++;
+          }
+        });
+      }
+    });
+  }
+
+  // 7. Dataset-Wide Numeric Missing Value Imputation (Mean, Median, or Zero)
+  if (options.fillNumericMissing && options.fillNumericMissing !== 'preserve') {
+    originalResult.columnProfiles.forEach((prof) => {
+      if (prof.inferredType === 'numeric' && prof.stats) {
+        const colIdx = prof.index;
+        let replacement: number = 0;
+        if (options.fillNumericMissing === 'mean') {
+          replacement = prof.stats.mean;
+        } else if (options.fillNumericMissing === 'median') {
+          replacement = prof.stats.median;
+        } else if (options.fillNumericMissing === 'zero') {
+          replacement = 0;
+        }
+
+        workingRows.forEach((row) => {
+          const val = row[colIdx];
+          if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '') || (typeof val === 'number' && isNaN(val))) {
+            row[colIdx] = replacement;
+            missingValuesFilled++;
+            cellsModifiedCount++;
+          }
+        });
+      }
+    });
+  }
+
+  // 8. Mathematical Outlier Treatment (1.5 * IQR Capping or Dropping)
+  if (options.handleOutliers && options.handleOutliers !== 'preserve') {
+    originalResult.columnProfiles.forEach((prof) => {
+      if (prof.inferredType === 'numeric' && prof.stats && prof.stats.iqr > 0) {
+        const colIdx = prof.index;
+        const lowerBound = prof.stats.q1 - 1.5 * prof.stats.iqr;
+        const upperBound = prof.stats.q3 + 1.5 * prof.stats.iqr;
+
+        if (options.handleOutliers === 'cap_iqr') {
+          workingRows.forEach((row) => {
+            const val = row[colIdx];
+            if (typeof val === 'number') {
+              if (val < lowerBound) {
+                row[colIdx] = Math.round(lowerBound * 100) / 100;
+                outliersCapped++;
+                cellsModifiedCount++;
+              } else if (val > upperBound) {
+                row[colIdx] = Math.round(upperBound * 100) / 100;
+                outliersCapped++;
+                cellsModifiedCount++;
+              }
+            }
+          });
+        }
+      }
+    });
+
+    if (options.handleOutliers === 'drop') {
+      const beforeCount = workingRows.length;
+      workingRows = workingRows.filter((row) => {
+        return originalResult.columnProfiles.every((prof) => {
+          if (prof.inferredType === 'numeric' && prof.stats && prof.stats.iqr > 0) {
+            const val = row[prof.index];
+            if (typeof val === 'number') {
+              const lowerBound = prof.stats.q1 - 1.5 * prof.stats.iqr;
+              const upperBound = prof.stats.q3 + 1.5 * prof.stats.iqr;
+              return val >= lowerBound && val <= upperBound;
+            }
+          }
+          return true;
+        });
+      });
+      outliersCapped = beforeCount - workingRows.length;
+    }
+  }
+
+  // 9. Standardize text casing for specific column
   if (options.standardizeCase) {
     const { column, mode } = options.standardizeCase;
     const colIdx = originalResult.headers.indexOf(column);
     if (colIdx !== -1) {
       workingRows.forEach((row) => {
-        const val = row[colIdx];
-        if (typeof val === 'string' && val.length > 0) {
-          let updated = val;
-          if (mode === 'lower') updated = val.toLowerCase();
-          else if (mode === 'upper') updated = val.toUpperCase();
-          else if (mode === 'title') {
-            updated = val.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-          }
-          if (updated !== val) {
-            row[colIdx] = updated;
-            cellsModifiedCount++;
+        const raw = row[colIdx];
+        if (raw !== null && raw !== undefined) {
+          const strVal = String(raw).trim();
+          if (strVal.length > 0) {
+            let updated = strVal;
+            if (mode === 'lower') {
+              updated = strVal.toLowerCase();
+            } else if (mode === 'upper') {
+              updated = strVal.toUpperCase();
+            } else if (mode === 'title') {
+              updated = strVal.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
+            }
+            if (updated !== raw) {
+              row[colIdx] = updated;
+              cellsModifiedCount++;
+            }
           }
         }
       });
     }
   }
 
-  // 4. Handle Missing Values
+  // 10. Column-specific Missing Value action
   let missingRowsDropped = 0;
   if (options.missingValueAction) {
     const { column, action, customValue } = options.missingValueAction;
@@ -594,11 +760,10 @@ export function cleanDataset(
 
     if (colIdx !== -1) {
       if (action === 'drop_row') {
-        const filtered = workingRows.filter((r) => r[colIdx] !== null && r[colIdx] !== undefined);
+        const filtered = workingRows.filter((r) => r[colIdx] !== null && r[colIdx] !== undefined && String(r[colIdx]).trim() !== '');
         missingRowsDropped = workingRows.length - filtered.length;
         workingRows = filtered;
       } else {
-        // Calculate replacement value
         let fillReplacement: any = null;
         const profile = originalResult.columnProfiles.find((p) => p.name === column);
 
@@ -614,9 +779,10 @@ export function cleanDataset(
 
         if (fillReplacement !== null) {
           workingRows.forEach((row) => {
-            if (row[colIdx] === null || row[colIdx] === undefined) {
+            if (row[colIdx] === null || row[colIdx] === undefined || String(row[colIdx]).trim() === '') {
               row[colIdx] = fillReplacement;
               cellsModifiedCount++;
+              missingValuesFilled++;
             }
           });
         }
@@ -628,23 +794,81 @@ export function cleanDataset(
   const cleanedData = [originalResult.headers, ...workingRows];
   const cleanedCsvString = Papa.unparse(cleanedData);
 
-  const rowsRemovedCount = duplicatesRemoved + missingRowsDropped;
+  const totalFilteredRows = emptyRowsDropped + duplicatesRemoved + missingRowsDropped + (options.handleOutliers === 'drop' ? outliersCapped : 0);
 
   const summaryReport = `
 # ORACLE Data Sanitization Audit Report
 - Original File: ${originalResult.fileName}
 - Original Records: ${initialCount}
-- Final Cleaned Records: ${workingRows.length}
-- Total Records Filtered: ${rowsRemovedCount} (${duplicatesRemoved} duplicates, ${missingRowsDropped} missing-value rows)
-- Total Data Cells Sanitized: ${cellsModifiedCount}
+- Cleaned Final Records: ${workingRows.length}
+- Empty Rows Dropped: ${emptyRowsDropped}
+- Duplicate Rows Removed: ${duplicatesRemoved}
+- Missing Cells Imputed: ${missingValuesFilled}
+- Type Casts / Cleaned Numbers: ${typeCastsCount}
+- Extreme Outliers Treated: ${outliersCapped}
+- Total Modified Cells: ${cellsModifiedCount}
 - Generated Timestamp: ${new Date().toISOString()}
 `.trim();
+
+  // Generate complete reproducible Jupyter Notebook Python script
+  const jupyterNotebookScript = `# =====================================================================
+# ORACLE AUTOMATED JUPYTER NOTEBOOK DATA CLEANING PIPELINE
+# File: ${originalResult.fileName}
+# Generated on: ${new Date().toLocaleString()}
+# =====================================================================
+
+import pandas as pd
+import numpy as np
+
+# 1. Load Dataset
+print("[1/6] Loading dataset...")
+df = pd.read_csv("${originalResult.fileName}")
+print(f"Original Shape: {df.shape[0]} rows, {df.shape[1]} columns")
+
+# 2. Drop 100% empty rows & strip whitespace
+print("[2/6] Dropping empty rows and stripping whitespace...")
+df.dropna(how='all', inplace=True)
+for col in df.select_dtypes(include=['object']).columns:
+    df[col] = df[col].astype(str).str.strip().replace({'nan': np.nan, '': np.nan})
+
+# 3. Remove Duplicate Rows
+duplicates = df.duplicated().sum()
+df.drop_duplicates(inplace=True)
+print(f"[3/6] Removed {duplicates} duplicate records.")
+
+# 4. Handle Missing Values (Categorical -> 'Unknown' / Numeric -> Median)
+print("[4/6] Imputing missing values...")
+for col in df.columns:
+    if df[col].dtype == 'object':
+        df[col] = df[col].fillna('Unknown')
+    elif np.issubdtype(df[col].dtype, np.number):
+        median_val = df[col].median()
+        df[col] = df[col].fillna(median_val)
+
+# 5. Outlier Detection & Capping (1.5 * IQR)
+print("[5/6] Treating numeric outliers with IQR capping...")
+for col in df.select_dtypes(include=[np.number]).columns:
+    q1 = df[col].quantile(0.25)
+    q3 = df[col].quantile(0.75)
+    iqr = q3 - q1
+    if iqr > 0:
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        df[col] = np.clip(df[col], lower_bound, upper_bound)
+
+# 6. Export Cleaned Dataset
+output_file = "cleaned_${originalResult.fileName}"
+df.to_csv(output_file, index=False)
+print(f"[6/6] Pipeline complete! Cleaned data saved to: {output_file}")
+print(f"Final Shape: {df.shape[0]} rows, {df.shape[1]} columns")
+`;
 
   return {
     cleanedRows: workingRows,
     cleanedCsvString,
-    rowsRemovedCount,
+    rowsRemovedCount: totalFilteredRows,
     cellsModifiedCount,
     summaryReport,
+    jupyterNotebookScript,
   };
 }

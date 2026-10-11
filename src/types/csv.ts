@@ -83,6 +83,12 @@ export interface CsvInsight {
 export interface CleaningOptions {
   removeDuplicates: boolean;
   trimWhitespace: boolean;
+  removeEmptyRows?: boolean;
+  cleanSpecialCharacters?: boolean;
+  autoTypeCasting?: boolean; // Parse numbers ("$12,000" -> 12000), booleans ("True"/"yes" -> true), dates
+  fillCategoricalMissing?: 'preserve' | 'unknown' | 'mode'; // Fill missing string values with "Unknown" or Mode
+  fillNumericMissing?: 'preserve' | 'mean' | 'median' | 'zero'; // Fill missing numeric values with mean/median/0
+  handleOutliers?: 'preserve' | 'cap_iqr' | 'drop'; // Cap using 1.5 * IQR or drop
   standardizeCase?: {
     column: string;
     mode: 'lower' | 'upper' | 'title';
