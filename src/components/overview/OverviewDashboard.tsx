@@ -28,23 +28,97 @@ export const OverviewDashboard: React.FC = () => {
   const moneyMetrics = calculateMoneyMetrics(moneyInputs);
   const timeMetrics = calculateTimeMetrics(timeInputs);
 
+  // LED blinking animation states
+  // Words: ["Turn", "Complexity", "to", "Reality"]
+  // 0: All hidden/dimmed
+  // 1: "Turn" appears & blinks
+  // 2: "Complexity" appears & blinks
+  // 3: "to" appears & blinks
+  // 4: "Reality" appears & blinks
+  // 5: All lit up and still for 3 seconds
+  const [animStep, setAnimStep] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (animStep >= 0 && animStep < 4) {
+      // Step through words every 650ms
+      timer = setTimeout(() => {
+        setAnimStep((prev) => prev + 1);
+      }, 650);
+    } else if (animStep === 4) {
+      // Transition to fully lit hold state
+      timer = setTimeout(() => {
+        setAnimStep(5);
+      }, 700);
+    } else if (animStep === 5) {
+      // Hold still for 3 seconds, then restart cycle
+      timer = setTimeout(() => {
+        setAnimStep(0);
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [animStep]);
+
+  const words = [
+    { text: 'Turn', step: 1, glowClass: 'led-glow-indigo' },
+    { text: 'Complexity', step: 2, glowClass: 'led-glow-indigo' },
+    { text: 'to', step: 3, glowClass: 'led-glow-cyan' },
+    { text: 'Reality', step: 4, glowClass: 'led-glow-cyan font-black' },
+  ];
+
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-300">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#131627]/90 to-[#0b0c14]/90 border border-white/[0.08] p-6 sm:p-10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#131627]/95 via-[#0d0f1b]/95 to-[#0b0c14]/95 border border-white/[0.08] p-6 sm:p-10 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
         <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>FINANCE · TIME · DATA</span>
+          {/* Top Pill: QUANTRIX Brand & Symbol (Remains Still / Constant) */}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 shadow-lg shadow-indigo-950/50">
+              <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-600 to-cyan-400 p-0.5 shadow-sm shadow-indigo-500/50">
+                <div className="w-full h-full bg-[#0b0c14] rounded-[6px] flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+                </div>
+              </div>
+              <span className="text-sm font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-300 font-mono">
+                QUANTRIX
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>FINANCE · TIME · DATA</span>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-            Turn Complexity{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
-              Into Clarity.
-            </span>
-          </h1>
+          {/* LED Word-by-Word Animated Heading: "Turn Complexity to Reality" */}
+          <div className="min-h-[4.5rem] sm:min-h-[5.5rem] flex items-center">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.2] flex flex-wrap items-center gap-x-3.5 gap-y-1">
+              {words.map((w) => {
+                const isCurrentBlinking = animStep === w.step;
+                const isPastOrStill = animStep > w.step;
+                const isVisible = animStep >= w.step;
+
+                return (
+                  <span
+                    key={w.text}
+                    className={`inline-block transition-all duration-300 select-none ${
+                      isCurrentBlinking
+                        ? `${w.glowClass} animate-pulse scale-105 opacity-100`
+                        : isPastOrStill
+                        ? `${w.glowClass} opacity-100 scale-100`
+                        : 'opacity-10 text-slate-700 blur-[1px]'
+                    }`}
+                  >
+                    {w.text}
+                  </span>
+                );
+              })}
+            </h1>
+          </div>
 
           <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
             A personal intelligence platform for understanding your finances, optimizing your time,
