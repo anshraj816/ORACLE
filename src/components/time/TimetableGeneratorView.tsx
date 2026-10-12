@@ -194,11 +194,11 @@ export const TimetableGeneratorView: React.FC<TimetableGeneratorViewProps> = ({ 
           return (
             <div
               key={slot.id}
-              className="flex items-center justify-between p-3.5 rounded-xl bg-[#121422]/70 border border-white/[0.04] hover:border-white/[0.1] transition-all group"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-[#121422]/70 border border-white/[0.04] hover:border-white/[0.1] transition-all group gap-2.5 sm:gap-4"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-3 h-8 rounded-full shrink-0"
+                  className="w-2.5 h-7 sm:w-3 sm:h-8 rounded-full shrink-0"
                   style={{ backgroundColor: color }}
                 />
 
@@ -209,21 +209,19 @@ export const TimetableGeneratorView: React.FC<TimetableGeneratorViewProps> = ({ 
                   </span>
                 </div>
 
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-100 truncate">
-                      {slot.label}
+                <div className="min-w-0 flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <span className="text-xs font-semibold text-slate-100 truncate">
+                    {slot.label}
+                  </span>
+                  {slot.isFixed && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700/80 text-slate-300 font-mono shrink-0">
+                      Fixed
                     </span>
-                    {slot.isFixed && (
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 font-mono">
-                        Fixed
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pl-5.5 sm:pl-0">
                 <Badge
                   variant={
                     slot.activity === 'study'

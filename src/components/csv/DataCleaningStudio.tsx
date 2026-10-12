@@ -385,15 +385,15 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
                   4. Statistical Outliers (1.5 &times; IQR Rule)
                 </span>
 
-                <div className="p-3 rounded-xl bg-[#090a12] border border-white/[0.04] flex items-center justify-between">
-                  <div>
+                <div className="p-3 rounded-xl bg-[#090a12] border border-white/[0.04] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="space-y-0.5">
                     <span className="text-xs font-semibold text-slate-200 block">IQR Outlier Handling Strategy</span>
-                    <span className="text-[10px] text-slate-400">Caps extreme anomalies at [Q1 - 1.5*IQR, Q3 + 1.5*IQR] or drops them</span>
+                    <span className="text-[10px] text-slate-400 block leading-tight">Caps extreme anomalies at [Q1 - 1.5*IQR, Q3 + 1.5*IQR] or drops them</span>
                   </div>
                   <select
                     value={handleOutliers}
                     onChange={(e) => setHandleOutliers(e.target.value as any)}
-                    className="bg-[#121422] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
+                    className="w-full sm:w-auto bg-[#121422] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none shrink-0"
                   >
                     <option value="cap_iqr">Cap with IQR Boundary (Recommended)</option>
                     <option value="drop">Drop Outlier Records</option>
