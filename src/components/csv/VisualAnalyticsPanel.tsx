@@ -305,9 +305,17 @@ export const VisualAnalyticsPanel: React.FC<VisualAnalyticsPanelProps> = ({
       <div className="w-full h-80">
         {chartType === 'histogram' && (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={histogramData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
+            <BarChart data={histogramData} margin={{ top: 10, right: 10, left: -10, bottom: 35 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="bin" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <XAxis
+                dataKey="bin"
+                stroke="#64748b"
+                interval={0}
+                angle={-25}
+                textAnchor="end"
+                height={45}
+                tick={{ fill: '#94a3b8', fontSize: 10 }}
+              />
               <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
               <Tooltip
                 content={({ active, payload }) => {
@@ -330,9 +338,17 @@ export const VisualAnalyticsPanel: React.FC<VisualAnalyticsPanelProps> = ({
 
         {chartType === 'categorical' && (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={categoricalData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
+            <BarChart data={categoricalData} margin={{ top: 10, right: 10, left: -10, bottom: 45 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="category" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <XAxis
+                dataKey="category"
+                stroke="#64748b"
+                interval={0}
+                angle={-35}
+                textAnchor="end"
+                height={55}
+                tick={{ fill: '#94a3b8', fontSize: 10 }}
+              />
               <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
               <Tooltip
                 content={({ active, payload }) => {
@@ -398,9 +414,17 @@ export const VisualAnalyticsPanel: React.FC<VisualAnalyticsPanelProps> = ({
 
         {chartType === 'missing_bar' && (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={missingData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
+            <BarChart data={missingData} margin={{ top: 10, right: 10, left: -10, bottom: 45 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="column" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <XAxis
+                dataKey="column"
+                stroke="#64748b"
+                interval={0}
+                angle={-35}
+                textAnchor="end"
+                height={55}
+                tick={{ fill: '#94a3b8', fontSize: 10 }}
+              />
               <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
               <Tooltip
                 content={({ active, payload }) => {
@@ -425,9 +449,17 @@ export const VisualAnalyticsPanel: React.FC<VisualAnalyticsPanelProps> = ({
 
         {chartType === 'timeseries' && (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
+            <LineChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -10, bottom: 45 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="date" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <XAxis
+                dataKey="date"
+                stroke="#64748b"
+                interval={0}
+                angle={-35}
+                textAnchor="end"
+                height={55}
+                tick={{ fill: '#94a3b8', fontSize: 10 }}
+              />
               <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
               <Tooltip />
               <Line type="monotone" dataKey="value" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3 }} />
