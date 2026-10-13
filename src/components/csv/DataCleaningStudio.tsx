@@ -9,6 +9,7 @@ import {
   Download,
   FileCheck,
   FileSpreadsheet,
+  FileText,
   Filter,
   Play,
   RotateCcw,
@@ -137,6 +138,105 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDownloadCleanedPdf = () => {
+    if (!previewResult) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      addToast({
+        type: 'warning',
+        title: 'Popup Blocked',
+        message: 'Please allow popups to open and print the PDF report.',
+      });
+      return;
+    }
+
+    const rowsPreviewHtml = previewResult.cleanedRows.slice(0, 50).map((row: (string | number | boolean | null)[], rIdx: number) => `
+      <tr style="border-bottom: 1px solid #e2e8f0; font-family: monospace; font-size: 11px;">
+        <td style="padding: 6px 10px; color: #64748b;">${rIdx + 1}</td>
+        ${row.map((c: string | number | boolean | null) => `<td style="padding: 6px 10px; color: #1e293b;">${c === null || c === undefined || c === '' ? '<span style="color:#e11d48; font-style:italic;">NULL</span>' : String(c)}</td>`).join('')}
+      </tr>
+    `).join('');
+
+    const headersHtml = parsedResult.headers.map(h => `<th style="padding: 8px 10px; text-align: left; background: #f8fafc; color: #334155; font-size: 11px; border-bottom: 2px solid #cbd5e1;">${h}</th>`).join('');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>QUANTRIX Cleaned Dataset Report - ${parsedResult.fileName}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 30px; color: #0f172a; margin: 0; }
+            .header { border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+            .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+            .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+            .kpi { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; }
+            .kpi-title { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+            .kpi-val { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 11px; color: #64748b; }
+            @media print {
+              body { padding: 0; }
+              @page { margin: 1.5cm; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">QUANTRIX — Cleaned Dataset Audit Report</h1>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">Source File: <strong>${parsedResult.fileName}</strong> • Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+            </div>
+            <span class="badge">Verified Cleaned</span>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-title">Original Records</div>
+              <div class="kpi-val">${parsedResult.overview.totalDataRows}</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">Cleaned Records</div>
+              <div class="kpi-val" style="color: #059669;">${previewResult.cleanedRows.length}</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">Modified Cells</div>
+              <div class="kpi-val" style="color: #0284c7;">${previewResult.cellsModifiedCount}</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">Removed / Filtered</div>
+              <div class="kpi-val" style="color: #e11d48;">${previewResult.rowsRemovedCount}</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 13px; text-transform: uppercase; color: #334155; margin-bottom: 8px;">Sample Cleaned Records (Print Excerpt)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="padding: 8px 10px; background: #f8fafc; border-bottom: 2px solid #cbd5e1; width: 30px;">#</th>
+                ${headersHtml}
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsPreviewHtml}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <span>QUANTRIX Local-First Computational Platform • Verified In-Browser Privacy</span>
+            <span>Engineered by Ansh Raj</span>
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleDownloadAuditReport = () => {
@@ -618,6 +718,15 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
               icon={<Download className="w-4 h-4" />}
             >
               Download Cleaned CSV
+            </Button>
+            <Button
+              size="sm"
+              disabled={!previewResult}
+              onClick={handleDownloadCleanedPdf}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-md shadow-purple-950/40"
+              icon={<FileText className="w-4 h-4" />}
+            >
+              Download PDF Report
             </Button>
           </div>
         </div>

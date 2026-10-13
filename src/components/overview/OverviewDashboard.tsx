@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Activity,
   ArrowRight,
   BarChart3,
   CheckCircle2,
@@ -10,6 +11,7 @@ import {
   LineChart,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingUp,
   Wallet,
   Zap,
@@ -23,10 +25,63 @@ import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 
 export const OverviewDashboard: React.FC = () => {
-  const { setActiveTab, moneyInputs, timeInputs, currency } = useApp();
+  const { setActiveTab, moneyInputs, timeInputs, currency, parsedCsv } = useApp();
 
   const moneyMetrics = calculateMoneyMetrics(moneyInputs);
   const timeMetrics = calculateTimeMetrics(timeInputs);
+
+  // QUANTRIX Synergy Index (Score 0–100)
+  // Financial component (0-40): savings rate and surplus health
+  const financeScore = Math.min(
+    40,
+    Math.max(
+      0,
+      moneyMetrics.isDeficit
+        ? 5
+        : Math.round(15 + Math.min(25, moneyMetrics.savingsRate * 0.7))
+    )
+  );
+
+  // Time component (0-40): routine feasibility and dedicated study pacing
+  const timeScore = Math.min(
+    40,
+    Math.max(
+      0,
+      timeMetrics.isOverAllocated
+        ? 10
+        : Math.round(
+            20 +
+              Math.min(20, (timeMetrics.weeklyStudy / 40) * 20)
+          )
+    )
+  );
+
+  // Data component (0-20): dataset health / clean ratio
+  const dataScore = parsedCsv
+    ? Math.min(
+        20,
+        Math.max(
+          5,
+          Math.round(
+            20 -
+              (parsedCsv.issues.length /
+                Math.max(1, parsedCsv.overview.totalDataRows)) *
+                10
+          )
+        )
+      )
+    : 18;
+
+  const totalSynergyScore = Math.min(100, Math.max(10, financeScore + timeScore + dataScore));
+  const synergyTier =
+    totalSynergyScore >= 85
+      ? { label: 'OPTIMAL SYNERGY', color: 'text-emerald-400', badge: 'emerald', ringColor: '#10b981' }
+      : totalSynergyScore >= 70
+      ? { label: 'STRONG ALIGNMENT', color: 'text-cyan-400', badge: 'cyan', ringColor: '#06b6d4' }
+      : totalSynergyScore >= 50
+      ? { label: 'MODERATE BALANCE', color: 'text-amber-400', badge: 'amber', ringColor: '#f59e0b' }
+      : { label: 'NEEDS RE-CALIBRATION', color: 'text-rose-400', badge: 'rose', ringColor: '#f43f5e' };
+
 
   // LED blinking animation states:
   // Words: ["Turn", "Complexity", "to", "Reality"]
@@ -156,6 +211,98 @@ export const OverviewDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* QUANTRIX Synergy Index Master Card */}
+      <Card className="p-6 sm:p-7 relative overflow-hidden" glow="emerald">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 relative z-10">
+          {/* Left: Score Gauge */}
+          <div className="flex items-center gap-6">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center shrink-0">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="rgba(255,255,255,0.06)"
+                  strokeWidth="8"
+                  fill="transparent"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke={synergyTier.ringColor}
+                  strokeWidth="8"
+                  strokeDasharray="251.2"
+                  strokeDashoffset={251.2 - (totalSynergyScore / 100) * 251.2}
+                  strokeLinecap="round"
+                  fill="transparent"
+                  className="transition-all duration-1000 ease-out"
+                />
+              </svg>
+              <div className="absolute flex flex-col items-center justify-center">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+                  {totalSynergyScore}
+                </span>
+                <span className="text-[9px] text-slate-400 font-semibold uppercase">/100</span>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                  QUANTRIX Synergy Index
+                </span>
+                <Badge variant={synergyTier.badge as any} size="sm">
+                  {synergyTier.label}
+                </Badge>
+              </div>
+              <h3 className="text-lg sm:text-xl font-extrabold text-white mt-1">
+                Unified Computational Alignment
+              </h3>
+              <p className="text-xs text-slate-300 mt-1 max-w-lg leading-relaxed">
+                A synthesized health index combining your financial runway stability, daily focus schedule,
+                and dataset cleanliness in real time.
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Component Pillars Breakdown */}
+          <div className="grid grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
+            <div className="p-3 rounded-xl bg-[#090a14] border border-white/[0.05] flex flex-col items-center text-center">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Finance
+              </span>
+              <span className="text-base sm:text-lg font-bold text-indigo-400 mt-0.5">
+                {financeScore}<span className="text-xs text-slate-500 font-normal">/40</span>
+              </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Surplus & Savings</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#090a14] border border-white/[0.05] flex flex-col items-center text-center">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Time
+              </span>
+              <span className="text-base sm:text-lg font-bold text-cyan-400 mt-0.5">
+                {timeScore}<span className="text-xs text-slate-500 font-normal">/40</span>
+              </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Focus Pacing</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#090a14] border border-white/[0.05] flex flex-col items-center text-center">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Data
+              </span>
+              <span className="text-base sm:text-lg font-bold text-emerald-400 mt-0.5">
+                {dataScore}<span className="text-xs text-slate-500 font-normal">/20</span>
+              </span>
+              <span className="text-[10px] text-slate-500 mt-0.5">Data Quality</span>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Live State Summary Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
