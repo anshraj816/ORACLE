@@ -161,6 +161,90 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
 
     const headersHtml = parsedResult.headers.map(h => `<th style="padding: 8px 10px; text-align: left; background: #f8fafc; color: #334155; font-size: 11px; border-bottom: 2px solid #cbd5e1;">${h}</th>`).join('');
 
+    // Power BI-style analytics chart builders
+    // 1. Column Type Distribution (Numeric vs Categorical vs Date vs Mixed)
+    const typeCounts: Record<string, number> = {};
+    parsedResult.columnProfiles.forEach(p => {
+      typeCounts[p.inferredType] = (typeCounts[p.inferredType] || 0) + 1;
+    });
+
+    const typeBarsHtml = Object.entries(typeCounts).map(([type, count]) => {
+      const pct = Math.round((count / parsedResult.columnProfiles.length) * 100);
+      const color = type === 'numeric' ? '#6366f1' : type === 'categorical' ? '#0ea5e9' : type === 'date' ? '#10b981' : '#f59e0b';
+      return `
+        <div style="margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; font-weight: 600;">
+            <span style="text-transform: capitalize; color: #334155;">${type} Columns</span>
+            <span style="color: #64748b;">${count} col (${pct}%)</span>
+          </div>
+          <div style="height: 8px; background: #e2e8f0; rounded: 4px; overflow: hidden; border-radius: 4px;">
+            <div style="height: 100%; width: ${pct}%; background: ${color}; border-radius: 4px;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 2. Top Categorical Distribution or Metric Bar Chart
+    const targetCatCol = parsedResult.columnProfiles.find(p => p.frequencies && p.frequencies.length > 0);
+    let topCatHtml = '';
+    if (targetCatCol && targetCatCol.frequencies) {
+      const maxCount = Math.max(...targetCatCol.frequencies.slice(0, 5).map(f => f.count), 1);
+      topCatHtml = `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: #1e293b; text-transform: uppercase;">Frequency Breakdown: ${targetCatCol.name}</span>
+            <span style="font-size: 10px; color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Power BI Chart</span>
+          </div>
+          ${targetCatCol.frequencies.slice(0, 5).map(f => {
+            const barPct = Math.round((f.count / maxCount) * 100);
+            return `
+              <div style="margin-bottom: 7px;">
+                <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px;">
+                  <span style="color: #334155; font-weight: 600;">${f.value || 'Blank'}</span>
+                  <span style="color: #64748b; font-family: monospace;">${f.count} (${Math.round(f.percentage * 100)}%)</span>
+                </div>
+                <div style="height: 7px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                  <div style="height: 100%; width: ${barPct}%; background: #0284c7; border-radius: 3px;"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // 3. Numeric Summary / Health Overview Card
+    const numCol = parsedResult.columnProfiles.find(p => p.stats);
+    let numericStatsHtml = '';
+    if (numCol && numCol.stats) {
+      numericStatsHtml = `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: #1e293b; text-transform: uppercase;">Statistical Metric: ${numCol.name}</span>
+            <span style="font-size: 10px; color: #7c3aed; background: #ede9fe; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Descriptive Stats</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px;">
+            <div style="padding: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 4px;">
+              <span style="color: #64748b; display: block;">MEAN AVG</span>
+              <strong style="font-size: 12px; color: #0f172a;">${numCol.stats.mean.toFixed(2)}</strong>
+            </div>
+            <div style="padding: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 4px;">
+              <span style="color: #64748b; display: block;">MEDIAN (Q2)</span>
+              <strong style="font-size: 12px; color: #0f172a;">${numCol.stats.median.toFixed(2)}</strong>
+            </div>
+            <div style="padding: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 4px;">
+              <span style="color: #64748b; display: block;">RANGE (MIN-MAX)</span>
+              <strong style="font-size: 11px; color: #0f172a;">${numCol.stats.min.toFixed(1)} – ${numCol.stats.max.toFixed(1)}</strong>
+            </div>
+            <div style="padding: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 4px;">
+              <span style="color: #64748b; display: block;">OUTLIERS (IQR)</span>
+              <strong style="font-size: 12px; color: #e11d48;">${numCol.stats.outlierCount} records</strong>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -170,10 +254,11 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 30px; color: #0f172a; margin: 0; }
             .header { border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
             .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-            .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+            .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
             .kpi { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; }
             .kpi-title { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
             .kpi-val { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px; }
+            .chart-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
             .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 11px; color: #64748b; }
             @media print {
@@ -191,6 +276,7 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
             <span class="badge">Verified Cleaned</span>
           </div>
 
+          <!-- Top Executive KPIs -->
           <div class="kpi-grid">
             <div class="kpi">
               <div class="kpi-title">Original Records</div>
@@ -210,7 +296,29 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
             </div>
           </div>
 
-          <h3 style="font-size: 13px; text-transform: uppercase; color: #334155; margin-bottom: 8px;">Sample Cleaned Records (Print Excerpt)</h3>
+          <!-- Power BI-Style Analysis Visualizations Grid -->
+          <div style="margin-bottom: 18px;">
+            <h3 style="font-size: 12px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; margin: 0 0 10px 0; font-weight: 700; border-left: 3px solid #6366f1; padding-left: 8px;">
+              Visual Intelligence &amp; Distribution Analysis (Power BI Suite)
+            </h3>
+            <div class="chart-section">
+              <!-- Chart 1: Column Schema Architecture -->
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                  <span style="font-size: 11px; font-weight: 700; color: #1e293b; text-transform: uppercase;">Column Type Composition</span>
+                  <span style="font-size: 10px; color: #4f46e5; background: #e0e7ff; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Data Schema</span>
+                </div>
+                ${typeBarsHtml}
+              </div>
+
+              <!-- Chart 2: Top Categorical or Metric Bar Chart -->
+              ${topCatHtml || numericStatsHtml}
+            </div>
+          </div>
+
+          <h3 style="font-size: 12px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; margin: 0 0 8px 0; font-weight: 700; border-left: 3px solid #059669; padding-left: 8px;">
+            Cleaned Data Table Excerpt
+          </h3>
           <table>
             <thead>
               <tr>
