@@ -7,6 +7,9 @@
 > **FINANCE · TIME · DATA**  
 > *Make better decisions with the power of computation.*
 
+🌐 **Live Platform**: [https://quantrix-ai-lab.github.io/](https://quantrix-ai-lab.github.io/)  
+📦 **Official Repository**: [https://github.com/quantrix-ai-lab/quantrix-ai-lab.github.io](https://github.com/quantrix-ai-lab/quantrix-ai-lab.github.io)
+
 QUANTRIX is a premium, local-first personal intelligence and data analytics platform built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Recharts**.
 
 It combines three interconnected analytical engines into a unified SaaS interface:
