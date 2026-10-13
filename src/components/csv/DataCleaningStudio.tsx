@@ -225,7 +225,7 @@ export const DataCleaningStudio: React.FC<DataCleaningStudioProps> = ({ parsedRe
 
           <div class="footer">
             <span>QUANTRIX Local-First Computational Platform • Verified In-Browser Privacy</span>
-            <span>Engineered by Ansh Raj</span>
+            <span>Automated Data Quality Audit</span>
           </div>
 
           <script>
